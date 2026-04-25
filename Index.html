@@ -1,0 +1,308 @@
+# Concentra-tempo-2.0
+Um app /site de orientação e organização de estudos diario
+index.hmtl
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConcentraTempo | Luiz Kalizak</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-anim"></div>
+
+    <div id="authScreen" class="container">
+        <h1 class="logo">Concentra<span>Tempo</span> ⏱️</h1>
+        <div class="input-group">
+            <input type="text" id="userInput" placeholder="Nome de Usuário">
+            <input type="email" id="emailInput" placeholder="Seu E-mail">
+            <button class="btn-main" onclick="login()">Entrar</button>
+        </div>
+        <button class="btn-suporte">💬 Suporte K-Tech</button>
+    </div>
+
+    <div id="welcomeScreen" class="container hidden">
+        <h1 class="logo">Concentra<span>Tempo</span></h1>
+        <div class="welcome-box">
+            <h2>Bem-vindo ao seu organizador de estudos!</h2>
+            <p>Olá, <span id="welcomeName"></span>. Tudo pronto para focar hoje?</p>
+            <button class="btn-start-app" onclick="startApp()">COMEÇAR</button>
+        </div>
+    </div>
+
+    <div id="mainApp" class="container hidden">
+        <header class="user-profile">
+            <div class="user-info">
+                <p>Usuário: <strong id="userName"></strong></p>
+                <small id="currentDate"></small>
+            </div>
+            <div class="avatar"></div>
+        </header>
+
+        <nav class="menu-tabs">
+            <button class="tab-btn active" onclick="showSection('cronograma', this)">Cronograma</button>
+            <button class="tab-btn" onclick="showSection('agenda', this)">Agenda</button>
+            <button class="tab-btn" onclick="showSection('foco', this)">Foco</button>
+        </nav>
+
+        <section id="cronograma" class="content-section">
+            <h3>📅 Cronograma Diário</h3>
+            <div class="form-container">
+                <input type="text" id="cronoMateria" placeholder="Matéria">
+                <input type="text" id="cronoAssunto" placeholder="Assunto">
+                <select id="cronoPeriodo">
+                    <option value="Manhã">🌅 Manhã</option>
+                    <option value="Tarde">☀️ Tarde</option>
+                    <option value="Noite">🌙 Noite</option>
+                </select>
+                <div class="time-range">
+                    <label>Início: <input type="time" id="cronoInicio"></label>
+                    <label>Fim: <input type="time" id="cronoFim"></label>
+                </div>
+                <button class="btn-add" onclick="addCrono()">Adicionar</button>
+            </div>
+            <ul id="listCrono" class="task-list"></ul>
+        </section>
+
+        <section id="agenda" class="content-section hidden">
+            <h3>📝 Agenda de Provas</h3>
+            <div class="form-container">
+                <input type="text" id="provaMateria" placeholder="Matéria da Prova">
+                <input type="text" id="provaAssunto" placeholder="Assunto da Prova">
+                <input type="date" id="provaData">
+                <button class="btn-add" onclick="addProva()">Agendar Prova</button>
+            </div>
+            <ul id="listProvas" class="task-list"></ul>
+        </section>
+
+        <section id="foco" class="content-section hidden">
+            <h3>🔥 Técnicas de Foco</h3>
+            
+            <div class="pomodoro-card">
+                <h4>Pomodoro</h4>
+                <div class="timer-display" id="timer">25:00</div>
+                <div class="timer-controls">
+                    <button class="btn-timer" onclick="startTimer()">Iniciar</button>
+                    <button class="btn-timer" onclick="pauseTimer()">Pausar</button>
+                    <button class="btn-timer" onclick="resetTimer()">Resetar</button>
+                </div>
+                <p>Ciclos completos: <span id="pomoCounter">0</span></p>
+            </div>
+
+            <div class="pomodoro-card feynman">
+                <h4>Técnica Feynman</h4>
+                <p style="font-size: 0.8rem;">Explique o assunto para si mesmo como se fosse para uma criança.</p>
+                <button class="btn-add" onclick="toggleFeynman()">Iniciar Explicação</button>
+                <div id="feynmanBox" class="hidden">
+                    <textarea placeholder="Escreva sua explicação simplificada aqui..."></textarea>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+style.css
+:root {
+    --bg: #050a0f;
+    --card-bg: rgba(13, 27, 42, 0.95);
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --text: #ffffff;
+    --gray: #95a5a6;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 95%;
+    max-width: 450px;
+    background: var(--card-bg);
+    margin: 20px 0;
+    padding: 25px;
+    border-radius: 20px;
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.hidden { display: none !important; }
+
+.logo { font-size: 2.2rem; margin-bottom: 20px; font-weight: 600; }
+.logo span { color: var(--green); text-shadow: 0 0 12px var(--green); }
+
+/* Tela de Boas-vindas */
+.welcome-box h2 { color: var(--green); font-size: 1.2rem; }
+.btn-start-app {
+    margin-top: 30px;
+    padding: 15px 40px;
+    background: var(--green);
+    border: none;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.4);
+}
+
+/* User Profile */
+.user-profile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+/* Menu Tabs */
+.menu-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.tab-btn {
+    flex: 1; padding: 10px; border: none; background: #1b263b;
+    color: white; border-radius: 8px; cursor: pointer;
+}
+.tab-btn.active { background: var(--green); color: #000; font-weight: bold; }
+
+/* Inputs */
+input, select, textarea {
+    width: 100%; padding: 12px; margin: 8px 0; background: #0d1b2a;
+    border: 1px solid rgba(46, 204, 113, 0.3); border-radius: 10px;
+    color: white; box-sizing: border-box;
+}
+
+.time-range { display: flex; gap: 10px; margin: 5px 0; font-size: 0.8rem; }
+
+.btn-main, .btn-add {
+    width: 100%; padding: 14px; background: var(--green);
+    border: none; border-radius: 10px; color: #000; font-weight: bold; cursor: pointer;
+}
+
+/* Listas */
+.task-list { list-style: none; padding: 0; }
+.task-item {
+    background: rgba(255,255,255,0.03); border-left: 4px solid var(--green);
+    padding: 15px; margin-bottom: 10px; border-radius: 8px;
+    display: flex; justify-content: space-between; align-items: center; text-align: left;
+}
+.completed { opacity: 0.4; text-decoration: line-through; border-left-color: var(--gray); }
+
+/* Foco */
+.pomodoro-card {
+    background: rgba(0,0,0,0.2); padding: 20px; border-radius: 15px; margin-bottom: 15px;
+}
+.timer-display { font-size: 3.5rem; color: var(--green); font-weight: bold; margin: 10px 0; }
+.btn-timer { padding: 8px 15px; margin: 0 5px; border-radius: 5px; border: none; cursor: pointer; }
+
+.feynman textarea { height: 100px; margin-top: 10px; border-color: var(--gray); }
+scrip.js// NAVEGAÇÃO E LOGIN
+function login() {
+    const name = document.getElementById('userInput').value;
+    if (!name) return alert("Digite seu nome!");
+    
+    document.getElementById('welcomeName').innerText = name;
+    document.getElementById('userName').innerText = name;
+    
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('welcomeScreen').classList.remove('hidden');
+}
+
+function startApp() {
+    document.getElementById('welcomeScreen').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    document.getElementById('currentDate').innerText = new Date().toLocaleDateString('pt-BR');
+}
+
+function showSection(id, btn) {
+    document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+
+// CRONOGRAMA
+function addCrono() {
+    const mat = document.getElementById('cronoMateria').value;
+    const ass = document.getElementById('cronoAssunto').value;
+    const per = document.getElementById('cronoPeriodo').value;
+    const ini = document.getElementById('cronoInicio').value;
+    const fim = document.getElementById('cronoFim').value;
+
+    if (!mat || !ini) return alert("Preencha os campos!");
+
+    const li = document.createElement('li');
+    li.className = 'task-item';
+    li.innerHTML = `
+        <div><strong>${mat}</strong><br><small>${per} | ${ini} - ${fim}</small><br><small>${ass}</small></div>
+        <div>
+            <button onclick="this.parentElement.parentElement.classList.toggle('completed')" style="color:var(--green); background:none; border:none; cursor:pointer;">✔</button>
+            <button onclick="this.parentElement.parentElement.remove()" style="color:var(--red); background:none; border:none; cursor:pointer; margin-left:10px;">✖</button>
+        </div>
+    `;
+    document.getElementById('listCrono').appendChild(li);
+}
+
+// AGENDA DE PROVAS
+function addProva() {
+    const mat = document.getElementById('provaMateria').value;
+    const ass = document.getElementById('provaAssunto').value;
+    const data = document.getElementById('provaData').value;
+
+    if (!mat || !data) return alert("Preencha matéria e data!");
+
+    const li = document.createElement('li');
+    li.className = 'task-item';
+    li.innerHTML = `
+        <div><strong>${mat}</strong><br><small>Assunto: ${ass}</small><br><small>📅 ${data.split('-').reverse().join('/')}</small></div>
+        <div>
+            <button onclick="this.parentElement.parentElement.classList.toggle('completed')" style="color:var(--green); background:none; border:none; cursor:pointer;">✔</button>
+            <button onclick="this.parentElement.parentElement.remove()" style="color:var(--red); background:none; border:none; cursor:pointer; margin-left:10px;">✖</button>
+        </div>
+    `;
+    document.getElementById('listProvas').appendChild(li);
+}
+
+// POMODORO COM CONTADOR
+let timeLeft = 25 * 60;
+let timerId = null;
+let cycles = 0;
+
+function startTimer() {
+    if (timerId) return;
+    timerId = setInterval(() => {
+        if (timeLeft > 0) {
+            timeLeft--;
+            updateDisplay();
+        } else {
+            clearInterval(timerId);
+            timerId = null;
+            cycles++;
+            document.getElementById('pomoCounter').innerText = cycles;
+            alert("Ciclo Concluído!");
+            timeLeft = 25 * 60;
+            updateDisplay();
+        }
+    }, 1000);
+}
+
+function pauseTimer() { clearInterval(timerId); timerId = null; }
+function resetTimer() { pauseTimer(); timeLeft = 25 * 60; updateDisplay(); }
+function updateDisplay() {
+    const m = Math.floor(timeLeft/60);
+    const s = timeLeft % 60;
+    document.getElementById('timer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+}
+
+// TÉCNICA FEYNMAN
+function toggleFeynman() {
+    document.getElementById('feynmanBox').classList.toggle('hidden');
+}
